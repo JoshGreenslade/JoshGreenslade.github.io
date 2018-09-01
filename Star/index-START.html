@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Star</title>
+</head>
+<body>
+
+  <div class='trapezoid' height=100% data-trap=1></div>>
+  <div class='trapezoid' height=100% data-trap=2></div>>
+  <div class='trapezoid' height=100% data-trap=3></div>>
+  <div class='trapezoid' height=100% data-trap=1></div>>
+  <div class='trapezoid' height=100% data-trap=2></div>>
+  <div class='trapezoid' height=100% data-trap=3></div>>
+
+  <div class='trapezoid' height=100% data-trap=1></div>>
+  <div class='trapezoid' height=100% data-trap=2></div>>
+  <div class='trapezoid' height=100% data-trap=3></div>>
+  <div class='trapezoid' height=100% data-trap=1></div>>
+  <div class='trapezoid' height=100% data-trap=2></div>>
+  <div class='trapezoid' height=100% data-trap=3></div>>
+
+
+
+
+  
+
+  <style>
+    html {
+      background:rgb(0, 5, 36);
+      background-size:cover;
+      font-family:'helvetica neue';
+      text-align: center;
+      font-size: 10px;
+    }
+
+    body {
+      margin: 0;
+      font-size: 2rem;
+      display:flex;
+      flex:1;
+      min-height: 100vh;
+      align-items: center;
+    }
+
+    .trapezoid {
+    border-bottom: 45vh solid rgb(255, 255, 255);
+    border-left: 5vw solid transparent;
+    border-right: 5vw solid transparent;
+    height: 0px;
+    width: 1px;
+    transform-origin: 50% 0%;
+    opacity: 0.5;
+    position: absolute;
+    top: 50%;
+    left: 45vw;
+
+  </style>
+
+  <script>
+    var currentAngle = 0;
+    var oddOrEven = true;
+    const trapezoids = document.querySelectorAll('.trapezoid');
+    const rotateAngle = 360/(trapezoids.length);
+    console.log(trapezoids);  
+    trapezoids.forEach(trapezoid => {
+      trapezoid.style.transform = 'rotate('+currentAngle+'deg)';
+      currentAngle += rotateAngle;
+      console.log('rotate('+currentAngle+'deg)');
+      
+    });
+
+
+    function rotateMore() {
+      const trapezoids = document.querySelectorAll('.trapezoid');
+      trapezoids.forEach(trapezoid => {
+        const individualAngle = parseFloat(trapezoid.style.transform.split('(')[1].split('d')[0]) + 0.2;
+        trapezoid.style.transform = 'rotate('+individualAngle+'deg)';
+    });
+    }
+  
+  setInterval(rotateMore, 16);
+  
+  </script>
+</body>
+</html>
+

@@ -4,33 +4,86 @@
   <meta charset="UTF-8">
   <title>JS Drum Kit</title>
 </head>
-<body style="background-color:rgb(0, 0, 0)">.>
-<canvas id="js-demo-canvas" width="200" height="200"></canvas>
+<style>
+  .slidecontainer {
+      width: 100%;
+  }
+  
+  .slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 50px;
+      background: #d3d3d3;
+      outline: none;
+      opacity: 0.1;
+      -webkit-transition: .2s;
+      transition: opacity .2s;
+  }
+  
+  .slider:hover {
+      opacity: 1;
+  }
+  
+  .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 50px;
+      height: 50px;
+      background: rgb(255, 255, 255);
+      cursor: pointer;
+  }
+  
+  .slider::-moz-range-thumb {
+      width: 25px;
+      height: 50px;
+      background: rgb(255, 255, 255);
+      cursor: pointer;
+  }
+  </style>
+
+<body style="background-color:rgb(0, 0, 0)">>
+<input id="spacing" type="range" name="spacing" min="80" max="300" value="150" data-sizing="px" class="slider">
+
+<canvas id="js-demo-canvas" width="100" height="100"></canvas>
 <script>
 
-var zoomlevel = 20
+const input = document.getElementById('spacing');
+var zoomlevel = 9e-7
 let canvas = document.getElementById('js-demo-canvas');
 let ctx = canvas.getContext("2d");
-canvas.setAttribute('style',"position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; margin: auto; border:2px solid black");
+canvas.setAttribute('style',
+`position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; margin: auto; border:2px solid black width: ${0.9*window.innerWidth}px; height: ${0.9*window.innerHeight}px;`);
+var zoomrate = 1- 1e-10
 
 function zoomOut() {
-zoomlevel *= 0.99;
+zoomlevel *= 1- 1e-16
 
 
-
-console.log(zoomlevel)
 
   for (let y = 0; y < canvas.height; y++) {
     for (let x = 0; x < canvas.width; x++) {
       let zoom = zoomlevel
-      let value = Math.floor(((x-100)/zoom) * ((y-100)/zoom)) % 2;
-      ctx.fillStyle = value ? "white" : "black";
+      let xx = (x-50)/zoom
+      let yy = (y-50)/zoom
+      let value = xx*xx + yy*yy
+      value = value % 256;
+      let color = Math.sin(xx*xx + yy*yy);
+      
+      color = 128 + 128*color
+      ctx.fillStyle = `rgb(${(color)}, ${color}, ${(color)})`
       ctx.fillRect(x,y,1,1);
     }
 }
 }
+
+function handleUpdate() {
+  zoomlevel = this.value/1e8;
+}
+
+input.addEventListener('change', handleUpdate);
+input.addEventListener('mousemove', handleUpdate);
 //zoomOut()
-setInterval(zoomOut, 100);
+setInterval(zoomOut, 33);
 </script>
 
 

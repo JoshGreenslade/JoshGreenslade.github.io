@@ -1,0 +1,326 @@
+
+<html>
+  <head>
+    <title>Star</title>
+    <style>
+
+      :root {
+        --background-color: rgb(0, 1, 8);
+        --color-temperature: rgb(0, 0, 0);
+        --sunbeam-opacity: 0.0;
+
+      }
+      body {
+        background-color:var(--background-color);
+        /* background-color: #dbdfff; */
+
+      }
+      svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      .header {
+        color: aliceblue;
+
+      }
+
+      .sun {
+        fill: var(--color-temperature);
+        transform-origin: 50% 50%;
+
+      }
+
+      .sun.bright{
+        fill:white;
+      }
+      
+
+      .sunbeams{
+        transform-origin: 50% 50%;
+        opacity: 0.0;
+        animation-name: opacity-glow;
+        animation-duration: 10s;
+        animation-iteration-count: infinite;
+        animation-timing-function: cubic-bezier(0.65, 0.01, 0.43, 1);
+        transition: opacity 10s;
+      }
+
+      @keyframes opacity-glow {
+        0% {opacity: 0.0;}
+        50% {opacity: var(--sunbeam-opacity);}
+        100% {opacity: 0.0;}
+      }
+
+      .sunbeams.fadeIn{
+        opacity: 0.1;
+      }
+
+      .blackhole{
+        transition: 1s;
+        transform-origin: 50% 50%;
+        transform: scale(0.0);
+      }
+
+
+      
+
+
+
+
+    </style>
+
+    //<h1 class='header'>Mass = 0</h1>
+    <script>
+
+      // NOT MY STUFF, This was kindly "borrowed" from the following: Thanks to Paul!
+
+        // From http://www.tannerhelland.com/4435/convert-temperature-rgb-algorithm-code/
+
+            // Start with a temperature, in Kelvin, somewhere between 1000 and 40000.  (Other values may work,
+            //  but I can't make any promises about the quality of the algorithm's estimates above 40000 K.)
+
+      function colorTemperatureToRGB(kelvin){
+      var temp = kelvin / 100;
+      var red, green, blue;
+      if( temp <= 66 ){ 
+          red = 255; 
+          green = temp;
+          green = 99.4708025861 * Math.log(green) - 161.1195681661;
+          if( temp <= 19){
+              blue = 0;
+          } else {
+              blue = temp-10;
+              blue = 138.5177312231 * Math.log(blue) - 305.0447927307;
+          }
+      } else {
+          red = temp - 60;
+          red = 329.698727446 * Math.pow(red, -0.1332047592);
+          green = temp - 60;
+          green = 288.1221695283 * Math.pow(green, -0.0755148492 );
+          blue = 255;
+      }
+      return {
+          r : clamp(red,   0, 255),
+          g : clamp(green, 0, 255),
+          b : clamp(blue,  0, 255)
+      }
+      }
+      function clamp( x, min, max ) {
+      if(x<min){ return min; }
+      if(x>max){ return max; }
+      return x;
+      }
+
+
+
+
+
+
+      // Now my stuff =D
+
+      let mass = 1.0e28;
+
+      let sunbeamIDs = ['sunbeam_0'];
+      
+      
+      function createSunbeams(numberOfBeams = 12, rotSpeed = 0.1, scale = 1.0) {
+
+        let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const sunbeamID = parseFloat(sunbeamIDs[sunbeamIDs.length - 1].split('sunbeam_')[1]) + 1;
+        g.id = 'sunbeam_' + String(sunbeamID);
+        g.setAttribute('data-rotspeed', rotSpeed);
+        g.setAttribute('data-scale', scale);
+
+        sunbeamIDs.push('sunbeam_' + String(sunbeamID));
+
+        
+        for (let deg = 0; deg < 360; deg += 360/numberOfBeams) {
+          let poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
+          const polyMin = 50 - 80/numberOfBeams;
+          const polyMax = 50 + 80/numberOfBeams;
+
+          poly.setAttribute('points', `50, 50 ${polyMin},10 ${polyMax},10`)
+          poly.setAttribute('transform', `rotate(${deg}, 50,50)`)
+          g.appendChild(poly)
+        }
+        document.getElementById('svg').appendChild(g)
+        g.classList.add('sunbeams');
+
+        var element = document.getElementById('sunbeam_' + String(sunbeamID));
+        rgb = colorTemperatureToRGB(2000 + Math.random()*16000);
+        element.style.fill = `rgb(${rgb['r']}, ${rgb['g']}, ${rgb['b']})`;
+      }
+
+      function rotateSunbeams() {
+        sunbeamIDs.forEach(sunbeamID => {
+          if (sunbeamID !== 'sunbeam_0') {;
+            var element = document.getElementById(sunbeamID);
+            if (element.classList.contains('blackhole')) {return};
+            const rotSpeed = element.getAttribute('data-rotspeed');
+            const scale = element.getAttribute('data-scale');
+
+            if (element.style.transform) {
+              const currentRot = parseFloat(element.style.transform.split('rotate(')[1].split('deg')[0])
+              const newRot = currentRot + parseFloat(rotSpeed);
+              element.style.transform = `rotate(${newRot}deg) scale(${scale})`
+            } else {
+              element.style.transform = `rotate(${rotSpeed}deg) scale(${scale})`
+            }
+          }
+        });
+
+        const g = document.getElementById('svg');
+        const s = document.querySelector('.sun');
+
+
+        g.appendChild(s);
+      }
+      
+      function addSun() {
+
+        const rInit = 8
+        const rDel = 1
+
+        let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+        var sun = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        sun.setAttribute('r', rInit);
+        sun.setAttribute('cx', 50);
+        sun.setAttribute('cy', 50);
+
+        var sun2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        sun2.setAttribute('r', rInit + rDel);
+        sun2.setAttribute('opacity', 0.75);
+        sun2.setAttribute('cx', 50);
+        sun2.setAttribute('cy', 50);
+
+        var sun3 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        sun3.setAttribute('r', rInit + 2*rDel);
+        sun3.setAttribute('opacity', 0.50);
+        sun3.setAttribute('cx', 50);
+        sun3.setAttribute('cy', 50);
+
+        var sun4 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        sun4.setAttribute('r', rInit + 3*rDel);
+        sun4.setAttribute('opacity', 0.25);
+        sun4.setAttribute('cx', 50);
+        sun4.setAttribute('cy', 50);
+
+
+
+        document.getElementById('svg').appendChild(g)
+        g.appendChild(sun);
+        g.appendChild(sun2);
+        g.appendChild(sun3);
+        g.appendChild(sun4);
+
+
+        g.classList.add('sun');
+        
+      }
+
+      function changeMass(e) {
+
+        if (mass > 1e33) {return}
+        const sun = document.querySelector('.sun')
+        const width = window.innerWidth;
+        const newMass = mass * 1.01;
+        const massFrac = (Math.log10(mass) - 28)/4;
+        document.querySelector('.header').innerHTML = `Mass = ${newMass}`;
+        console.log(sun.classList.contains('blackhole'), massFrac)
+
+        
+        const mSolar = 2e30
+        const rSolar = 695700e3;
+        const tSolar = 5778
+        const temperature = Math.pow(Math.pow(newMass/mSolar, 2.5)*Math.pow(tSolar,4),0.25);
+        const rgb = colorTemperatureToRGB(temperature);
+
+        document.documentElement.style.setProperty(`--color-temperature`, `rgb(${rgb['r']}, ${rgb['g']}, ${rgb['b']})`);
+        document.documentElement.style.setProperty(`--sunbeam-opacity`, `${0.1*massFrac}`);
+  
+        const radius = Math.pow(0.01*(Math.pow(newMass/mSolar, 0.8)*(rSolar)/1e6),0.3);
+        const s = document.querySelector('.sun');
+        let rDel = 1
+        s.childNodes.forEach( circ => {
+          circ.setAttribute('r', radius + rDel);
+          rDel += 1.3*radius;
+        });
+
+        const numberWanted = Math.pow(5*(massFrac),2);
+
+        while (sunbeamIDs.length -1 < numberWanted) {
+        
+          createSunbeams(numberOfBeams = 12 + Math.round(Math.random()*12), rotSpeed = Math.random()*0.4 - 0.2, scale = 1+Math.random()*2) ;
+          const createdSunbeam = sunbeamIDs[sunbeamIDs.length - 1]
+          const toFadein = document.getElementById(`${createdSunbeam}`);
+
+          window.setTimeout(() => {toFadein.classList.toggle('fadeIn')}, 0);
+
+        }
+
+        while (sunbeamIDs.length -1> numberWanted) {
+          var lastElement = sunbeamIDs[sunbeamIDs.length - 1];
+          var element = document.getElementById(lastElement);
+          element.parentNode.removeChild(element);
+          sunbeamIDs.pop();
+
+        }
+
+
+
+
+
+
+        
+
+
+
+        mass = newMass;
+
+      }
+
+      function blackhole() {
+        if (mass < 1e32) {return}
+        const allElements = document.querySelectorAll('g');
+        allElements.forEach(element => {
+          element.classList.add('blackhole');
+
+          element.style.transition = '1s'
+          element.style.transform = 'scale(0)'
+          element.style.animationDuration ='0s'
+
+        })
+      }
+
+
+
+      function init() {
+        console.log('Initialising')    
+        createSunbeams(numberOfBeams = 12, rotSpeed = 0.1, scale = 1.0)  ;
+        addSun(); 
+
+      }
+      
+      setInterval(rotateSunbeams, 10);
+      document.addEventListener('mousemove', changeMass);
+      //document.addEventListener('mousemove', blackhole);
+
+
+
+
+
+
+        
+
+            
+    </script>
+  </head>
+  <body onload="init()">
+    <svg id="svg" viewbox="0 0 100 100">
+    </svg>
+      
+    </svg>
+  </body>
+</html>

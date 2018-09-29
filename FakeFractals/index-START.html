@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JS Drum Kit</title>
+</head>
+<body style="background-color:rgb(0, 0, 0)">.>
+<canvas id="js-demo-canvas" width="200" height="200"></canvas>
+<script>
+
+var zoomlevel = 20
+let canvas = document.getElementById('js-demo-canvas');
+let ctx = canvas.getContext("2d");
+canvas.setAttribute('style',"position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; margin: auto; border:2px solid black");
+
+function zoomOut() {
+zoomlevel *= 0.99;
+
+
+
+console.log(zoomlevel)
+
+  for (let y = 0; y < canvas.height; y++) {
+    for (let x = 0; x < canvas.width; x++) {
+      let zoom = zoomlevel
+      let value = Math.floor(((x-100)/zoom) * ((y-100)/zoom)) % 2;
+      ctx.fillStyle = value ? "white" : "black";
+      ctx.fillRect(x,y,1,1);
+    }
+}
+}
+//zoomOut()
+setInterval(zoomOut, 100);
+</script>
+
+
+</body>
+</html>
